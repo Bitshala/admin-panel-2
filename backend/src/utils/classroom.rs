@@ -1,8 +1,8 @@
-use std::env;
-use serde::Deserialize;
 use octocrab::Octocrab;
-use thiserror::Error;
+use serde::Deserialize;
 use serde_json::Value;
+use std::env;
+use thiserror::Error;
 
 // Represents a GitHub Classroom
 #[derive(Debug, Deserialize)]
@@ -38,20 +38,47 @@ pub enum ClassroomError {
     ParseError(#[from] serde_json::Error),
 }
 
-pub async fn get_submitted_assignments() -> Result<Vec<Assignment>, ClassroomError> {
-    let token = env::var("GITHUB_TOKEN")?;
-    println!("GitHub token: {}", token);
-
-    let octocrab = Octocrab::builder().personal_token(token).build()?;
-
-    let assignment_id = 812582;
-    let endpoint = format!("/assignments/{assignment_id}/grades");
-
-    let assignments: Vec<Assignment> = octocrab.get(endpoint, None::<&()>).await?;
-    
-    Ok(assignments)
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+enum WEEK {
+    One,
+    Two,
 }
 
+impl WEEK {
+    pub fn from_number(week_number: i32) -> Option<Self> {
+        match week_number {
+            1 => Some(WEEK::One),
+            2 => Some(WEEK::Two),
+            _ => None,
+        }
+    }
+
+    pub fn to_assign_id(&self) -> u32 {
+        match self {
+            WEEK::One => 812582,
+            WEEK::Two => 814648,
+        }
+    }
+}
+
+pub async fn get_submitted_assignments(
+    week_number: i32,
+) -> Result<Vec<Assignment>, ClassroomError> {
+    let token = env::var("GITHUB_TOKEN")?;
+    println!("GitHub token: {}", token);
+    let octocrab = Octocrab::builder().personal_token(token).build()?;
+
+    let week = if let Some(week) = WEEK::from_number(week_number) {
+        week
+    } else {
+        return Ok(vec![]);
+    };
+
+    let assignment_id = week.to_assign_id();
+    let endpoint = format!("/assignments/{assignment_id}/grades");
+    let assignments: Vec<Assignment> = octocrab.get(endpoint, None::<&()>).await?;
+    Ok(assignments)
+}
 
 impl Assignment {
     // Check if assignment was submitted
@@ -59,11 +86,13 @@ impl Assignment {
         self.submission_timestamp != Some("".to_string())
     }
 
-        // Check if assignment was submitted
+    // Check if assignment was submitted
     pub fn get_week(&self) -> String {
-        let number: String = self.assignment_name.chars().filter(|c| c.is_numeric()).collect();
+        let number: String = self
+            .assignment_name
+            .chars()
+            .filter(|c| c.is_numeric())
+            .collect();
         return number;
     }
-    
 }
-

@@ -508,7 +508,7 @@ const TableView: React.FC = () => {
         <h3 className="">Cohort Participants</h3>
 
         <div className='flex gap-4 mb-4 items-center'>
-          {[0, 1, 2, 3, 4].map(i => (
+          {[0, 1, 2, 3, 4, 5, 6].map(i => (
             <button key={i} onClick={() => { setWeek(i); fetchWeeklyData(i); SetSaved(false); setIsEditing(false); setContextMenu({visible: false, x: 0, y: 0, targetId: null}); setEditedRows([]); }}
               className={`font-light text-xl pb-1 ${week === i ? 'border-b-2 border-indigo-600 text-indigo-600' : 'text-gray-600 hover:text-indigo-500'}`}>
               Week {i}
@@ -557,7 +557,9 @@ const TableView: React.FC = () => {
                   <th scope="col" colSpan={4} className="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">GD SCORE</th>
                   <th scope="col" colSpan={3} className="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">BONUS SCORE</th>
                   <th scope="col" colSpan={4} className="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">EXERCISE SCORES</th>
-                  <th scope="col" rowSpan={2} className="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase tracking-wider align-middle">Total</th>
+                  <th scope="col" rowSpan={2} className="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase tracking-wider align-middle cursor-pointer hover:bg-gray-200" onClick={() => requestSort('total')}>
+                    Total{getSortIndicator('total')}
+                  </th>
                 </tr>
                 <tr className="bg-gray-100">
                   <th scope="col" className="px-3 py-2 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">Communication</th><th scope="col" className="px-3 py-2 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">Depth Of Answer</th><th scope="col" className="px-3 py-2 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">Technical Bitcoin Fluency</th><th scope="col" className="px-3 py-2 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">Engagement</th>
